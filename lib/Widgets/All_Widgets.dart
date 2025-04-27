@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hello_world/Pages/AuthedPages/userProfile.dart';
 import 'package:hello_world/main.dart';
 import 'package:hello_world/services/apiService.dart';
 import 'package:hello_world/library/Necessary.dart';
@@ -7,7 +8,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:hello_world/Pages/AuthedPages/allAuthedPages.dart';
 import 'package:flutter_map/flutter_map.dart';
 
-Widget buildStandardFutureBuilder(futureEntity,failText, childWidget) {
+Widget buildStandardFutureBuilder(futureEntity, failText, childWidget) {
   return FutureBuilder<List<dynamic>>(
     future: futureEntity,
     builder: (context, snapshot) {
@@ -291,6 +292,8 @@ buildAuthedAppBar(BuildContext context) {
           Icons.energy_savings_leaf, "See my gardens"),
       buildIconButtonLink(context, plantInfoScreen(), "Almanac", Icons.book,
           "View the almanac."),
+      buildIconButtonLink(context, UserProfileScreen(), "My Profile", Icons.face,
+          "View and edit your profile.")
     ])),
     backgroundColor: Colors.green,
     shape: RoundedRectangleBorder(

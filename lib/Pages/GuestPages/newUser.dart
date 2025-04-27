@@ -3,6 +3,7 @@ import 'package:hello_world/Pages/AllPages.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:hello_world/Widgets/All_Widgets.dart';
+import 'package:http/http.dart';
 
 class SecondPage extends StatefulWidget {
   @override
@@ -14,7 +15,7 @@ class _SecondPageState extends State<SecondPage> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
 
-  final String baseUrl = 'http://127.0.0.1:8000/api/post/';
+    final String baseUrl = 'http://127.0.0.1:8000/api/post/';
 
   Future<void> createUser() async {
     try {
@@ -37,8 +38,13 @@ class _SecondPageState extends State<SecondPage> {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => loginPage()));
       } else {
+        print(response.body);
+        Map<String, dynamic> responseData  = jsonDecode(response.body);
+        //Have to find the name of the field for the returned error
+        List<String> fieldNames = responseData.keys.toList();
+        String outText = responseData[fieldNames[0]][0];
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create user: ${response.statusCode}')),
+          SnackBar(content: Text('Failed to create user: $outText')),
         );
       }
     } catch (e) {

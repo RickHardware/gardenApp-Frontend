@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hello_world/Pages/AllPages.dart';
+import 'package:hello_world/Pages/AuthedPages/userProfile.dart';
 import 'package:hello_world/Widgets/All_Widgets.dart';
 import 'package:hello_world/services/apiService.dart';
 
@@ -32,6 +33,8 @@ class LoggedInHomePage extends StatefulWidget {
            buildElevatedButtonLink(context,GardenListScreen(),'My Gardens'),
            const SizedBox(height: 10),
             buildElevatedButtonLink(context,plantInfoScreen(), 'Almanac'),
+            const SizedBox(height: 10),
+            buildElevatedButtonLink(context,UserProfileScreen(), 'My Profile'),
             const SizedBox(height: 10),
           ],
         ),

@@ -173,6 +173,29 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> fetchUserProfile(int ID) async {
+    const String apiUrl = 'http://127.0.0.1:8000/api/userprofile/';
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "ID" : ID
+        }),
+      );
+            if (response.statusCode == 200) {
+              return json.decode(response.body) as Map<String, dynamic>;
+      } else {
+        throw Exception('Failed to load profile');
+      }
+    } catch (e) {
+      throw Exception('Failed to load profile: $e');
+    }
+  }
+
+
 
 
   Future<String> fetchUserName(int userID) async {
