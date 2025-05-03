@@ -15,9 +15,11 @@ class _SecondPageState extends State<SecondPage> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
 
-    final String baseUrl = 'http://127.0.0.1:8000/api/post/';
+  final String baseUrl = 'http://127.0.0.1:8000/api/post/';
 
   Future<void> createUser() async {
+    //Create a Json response from the entered data
+    //Try to submit the data to the correct endpoint.
     try {
       final response = await http.post(
         Uri.parse(baseUrl),
@@ -30,7 +32,7 @@ class _SecondPageState extends State<SecondPage> {
           'password': passwordController.text
         }),
       );
-
+      //If post request is accepted, give the user feedback and tell them a user has been successfully created.
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('User created successfully!')),
@@ -38,22 +40,24 @@ class _SecondPageState extends State<SecondPage> {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => loginPage()));
       } else {
-        print(response.body);
-        Map<String, dynamic> responseData  = jsonDecode(response.body);
-        //Have to find the name of the field for the returned error
+        //In the case of a failed user creation, need to decompose the response
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+        //Retrieve the field name for the error code.
         List<String> fieldNames = responseData.keys.toList();
+        //Get the first entry of the first field which will be the serializer errors.
+        //Gives a more informative error
         String outText = responseData[fieldNames[0]][0];
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to create user: $outText')),
         );
       }
     } catch (e) {
+      //Possibility for a more complex error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
     }
   }
-
 
   @override
   void dispose() {
@@ -98,7 +102,6 @@ class _SecondPageState extends State<SecondPage> {
                 ),
               ),
               const SizedBox(height: 20),
-
               TextField(
                 controller: passwordController,
                 obscureText: true,
@@ -113,9 +116,10 @@ class _SecondPageState extends State<SecondPage> {
               ElevatedButton(
                 onPressed: createUser,
                 child: Text('Create User'),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green,),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                ),
               ),
-
             ],
           ),
         ),

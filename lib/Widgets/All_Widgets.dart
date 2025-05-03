@@ -286,8 +286,6 @@ buildAuthedAppBar(BuildContext context) {
           context, LoggedInHomePage(), "Home", Icons.home, "Homepage"),
       buildIconButtonLink(
           context, GeoPage(), "Map", Icons.map_outlined, "Map of all Gardens"),
-      //buildIconButtonLink(context, weatherPage(), "Weather", Icons.thunderstorm,
-      //    "View current weather"),
       buildIconButtonLink(context, GardenListScreen(), 'My Gardens',
           Icons.energy_savings_leaf, "See my gardens"),
       buildIconButtonLink(context, plantInfoScreen(), "Almanac", Icons.book,
