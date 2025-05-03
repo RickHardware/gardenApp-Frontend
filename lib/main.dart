@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hello_world/Pages/AllPages.dart';
+import 'package:hello_world/Pages/GuestPages/guestGardenMap.dart';
 import 'package:hello_world/Widgets/All_Widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:hello_world/library/Necessary.dart';
@@ -60,7 +61,7 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 10),
             buildElevatedButtonLink(context,loginPage(), 'Returning Gardener'),
             const SizedBox(height: 10),
-            buildElevatedButtonLink(context,GeoPage(),'Explore Gardens'),
+            buildElevatedButtonLink(context,GuestGeoPage(),'Explore Gardens'),
             //const SizedBox(height: 10),
             //buildElevatedButtonLink(context,ThirdPage(),'Returning Gardener'),
             //const SizedBox(height: 10),
