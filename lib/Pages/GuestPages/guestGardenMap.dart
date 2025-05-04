@@ -3,7 +3,7 @@ import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_map_marker_popup/extension_api.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:hello_world/Pages/AllPages.dart';
-import 'package:hello_world/library/Necessary.dart';
+import 'package:hello_world/library/Utility.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -15,7 +15,7 @@ import 'dart:convert';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:hello_world/library/Necessary.dart';
+import 'package:hello_world/library/Utility.dart';
 import 'package:weather/weather.dart';
 import '../../services/apiService.dart';
 

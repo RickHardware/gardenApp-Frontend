@@ -3,7 +3,7 @@ import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_map_marker_popup/extension_api.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:hello_world/Pages/AllPages.dart';
-import 'package:hello_world/library/Necessary.dart';
+import 'package:hello_world/library/Utility.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -15,7 +15,7 @@ import 'dart:convert';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:hello_world/library/Necessary.dart';
+import 'package:hello_world/library/Utility.dart';
 import 'package:weather/weather.dart';
 import '../../services/apiService.dart';
 
@@ -103,10 +103,9 @@ class GeoPageState extends State<GeoPage> {
               return Column(children: [
                 SizedBox(height: 10),
                 Expanded(
-                    child: Row(children: [
-                      Expanded(
-                    child:
-                    Container(
+                child: Stack(
+                children: [
+                Container(
                     padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: Colors.green[300],
@@ -258,9 +257,13 @@ class GeoPageState extends State<GeoPage> {
                                         }),
                                   ))
                             ],
-                          )))
-                    ])),
+                          )),
+
                 SizedBox(height: 10,),
+              Positioned(
+              bottom: 20,
+              right : 20,
+              child:
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -291,6 +294,7 @@ class GeoPageState extends State<GeoPage> {
                           }
                         }),
                     SizedBox(width: 10,),
+
                     Container(
                       padding: EdgeInsets.all(10),
                       decoration: BoxDecoration(
@@ -306,8 +310,9 @@ class GeoPageState extends State<GeoPage> {
                           }),
                     ),
                   ],
-                )
-              ]);
+                ))
+              ]))]);
+
             }));
   }
 }

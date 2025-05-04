@@ -67,7 +67,8 @@ class _plantInfoScreenState extends State<plantInfoScreen> {
             Row(children: [
           Expanded(
               child: Column(children: [
-            Text("Popular Plants: Click for information:"),
+                buildStandardSubtitleText('Choose a plant for more information:'),
+            //Text("Popular Plants: Click for information:"),
             buildStandardFutureBuilder(
               plants,
               'Failed to load plants',

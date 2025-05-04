@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:hello_world/library/Necessary.dart';
+import 'package:hello_world/library/Utility.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -61,8 +61,8 @@ Future<String> recommendPlant(WeatherFactory wf, cityName) async {
   String DateString = Date.toString();
   Prompt = Prompt + "Recommend a plant to grow in: " + PlaceName!;
   Prompt = Prompt + " at this time of year: " + DateString!;
-  Prompt = Prompt + "Keep Responses to 100 characters or less.  Keep response in plain text with no unusual formatting. Keep response as a single paragraph..Include a comment on the time of year, the weather and the location.  Give information about how to plant it.";
-  print("Prompt = $Prompt");
+  Prompt = Prompt + "Keep Responses to 100 characters or less.  Keep response in plain text with no unusual formatting. Give information about how to plant it.";
+  Prompt = Prompt + "Keep response as a single paragraph..Include a comment on the time of year, the weather and the location.";
   String response = await askLLM(Prompt);
   return(response);
 }
@@ -77,11 +77,7 @@ Future<String> askLLM(String message) async  {
   const String apiUrl = 'http://127.0.0.1:8000/api/chat/';
   //Sanitise message.
   String ResponseGuidance = "Respond to the next question in a single paragraph in less than 50 characters.";
-  print("here");
-  print(message);
   String newmessage = "$ResponseGuidance  $message";
-  print("three");
-  print(newmessage);
   try {
     final response = await http.post(
       Uri.parse(apiUrl),

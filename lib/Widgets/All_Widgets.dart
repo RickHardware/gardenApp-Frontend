@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hello_world/Pages/AuthedPages/userProfile.dart';
 import 'package:hello_world/main.dart';
 import 'package:hello_world/services/apiService.dart';
-import 'package:hello_world/library/Necessary.dart';
+import 'package:hello_world/library/Utility.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:hello_world/Pages/AuthedPages/allAuthedPages.dart';
@@ -44,12 +44,10 @@ Widget buildStandardGardenList(snapshot, userID) {
       final bio = garden['bio'] ?? 'No Bio.';
       final lat = garden['latitude'] ?? 'No Bio.';
       final long = garden['longitude'] ?? 'No Bio.';
-
       return ListTile(
         onTap: () {
           Provider.of<gardenProvider>(context, listen: false).setGarden(Garden(
               name: name, Long: long, Lat: lat, bio: bio, ownerID: userID));
-
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => GardenProfile()),
@@ -79,15 +77,14 @@ Widget buildStandardContainer(
 Flexible buildElevatedButtonLink(
     BuildContext context, Widget DestinationPage, String ButtonLabel) {
   Size screenSize = MediaQuery.of(context).size;
-
   return Flexible(
       child: ElevatedButton(
     style: ElevatedButton.styleFrom(
       backgroundColor: Colors.green,
-      fixedSize: Size(350, 50), //screenSize / 10,
+      fixedSize: Size(350, 50),
       side: BorderSide(
-        color: Colors.green, // Border color
-        width: 0, // Border width
+        color: Colors.green,
+        width: 0,
       ),
     ),
     onPressed: () {
@@ -180,6 +177,10 @@ Marker buildDynamicGardenMarker(double Latitude, double Longitude) {
     alignment: Alignment.topCenter,
     child: Icon(Icons.location_pin, size: 40, color: Colors.green),
   );
+}
+
+Image BuildStandardLogo(BuildContext context) {
+  return Image.asset("../assets/logo.png", height: 200);
 }
 
 AppBar buildStandardAppBar(BuildContext context) {
