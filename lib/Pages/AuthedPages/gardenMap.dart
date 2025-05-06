@@ -28,12 +28,13 @@ class GeoPageState extends State<GeoPage> {
   ApiService apiService = ApiService();
 
   late Future<List<Garden>> ExistingGardens;
+  //Centre on belfast
   LatLng Centering = LatLng(54.607868, -5.926437);
 
   //LatLong variable for clicked point
   LatLng? NewGardenLatLng;
 
-  //Have to initialie these - choose invalid coords to ensure no matching
+  //Have to initialise these - choose invalid coords to ensure no matching
   double NewLat = 77;
   double NewLong = 77;
 
@@ -45,7 +46,7 @@ class GeoPageState extends State<GeoPage> {
   //Have to define a popup controller object
   PopupController popupController = PopupController();
   List<Marker> MarkerList = [];
-
+  //Prepare weather object
   String cityName = "Belfast";
   WeatherFactory wf = new WeatherFactory("8c4431682b329e67209d84d549d16186");
 
@@ -71,8 +72,6 @@ class GeoPageState extends State<GeoPage> {
     }
   }
 
-  // late Future<Garden>? clickedGarden;
-
   @override
   void initState() {
     super.initState();
@@ -81,10 +80,9 @@ class GeoPageState extends State<GeoPage> {
   @override
   Widget build(BuildContext context) {
     final currentUserID =
-    Provider.of<UserProvider>(context, listen: false).getUser()?.getName();
+        Provider.of<UserProvider>(context, listen: false).getUser()?.getName();
     return Scaffold(
         appBar: buildAuthedAppBar(context),
-        //bottomNavigationBar: buildStandardBottomAppBar(context),
         body: FutureBuilder<List<Marker>>(
             future: apiService.fetchGardenMarkers(),
             builder: (context, snapshot) {
@@ -97,222 +95,206 @@ class GeoPageState extends State<GeoPage> {
                 print("fail");
                 //return Center(child: Text("No gardens available"));
               }
+              //Fill MarkerList with all markers returned from database
               MarkerList.addAll(snapshot.data!);
 
               // }
               return Column(children: [
                 SizedBox(height: 10),
                 Expanded(
-                child: Stack(
-                children: [
-                Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.green[300],
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                          child: FlutterMap(
-                            options: MapOptions(
-                              onTap: (tapPosition, point) {
-                                //ensure all previous popups are gone
-                                popupController.hideAllPopups();
-                                setState(() {
-                                  NewGardenLatLng = point;
-                                  NewLat = NewGardenLatLng!.latitude;
-                                  NewLong = NewGardenLatLng!.longitude;
+                    child: Stack(children: [
+                  Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.green[300],
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: FlutterMap(
+                        options: MapOptions(
+                          onTap: (tapPosition, point) {
+                            //ensure all previous popups are gone
+                            popupController.hideAllPopups();
+                            setState(() {
+                              NewGardenLatLng = point;
+                              NewLat = NewGardenLatLng!.latitude;
+                              NewLong = NewGardenLatLng!.longitude;
 
-                                  //Check if a click has happened.
-                                  if (NewGardenLatLng?.longitude != null) {
-                                    //Check if a preexisting preview garden is in place
-                                    if (NewMarkerAdded) {
-                                      print("removing");
-                                      //If so, remove the previous preview.
-                                      MarkerList.removeWhere((marker) =>
+                              //Check if a click has happened.
+                              if (NewGardenLatLng?.longitude != null) {
+                                //Check if a preexisting preview garden is in place
+                                if (NewMarkerAdded) {
+                                  //If so, remove the previous preview.
+                                  MarkerList.removeWhere((marker) =>
                                       marker.key == ValueKey("TempFlag"));
-                                    }
-                                    //Add new garden marker
-                                    MarkerList.add(buildTempGardenMarker(
-                                        NewGardenLatLng!.latitude,
-                                        NewGardenLatLng!.longitude));
-                                    Centering =
-                                        LatLng(NewGardenLatLng!.latitude,
-                                            NewGardenLatLng!.longitude);
+                                }
+                                //Add new garden marker
+                                MarkerList.add(buildTempGardenMarker(
+                                    NewGardenLatLng!.latitude,
+                                    NewGardenLatLng!.longitude));
+                                //Centre on new marker
+                                Centering = LatLng(NewGardenLatLng!.latitude,
+                                    NewGardenLatLng!.longitude);
 
-                                    NewMarkerAdded = true;
-                                    //Otherwise,
-                                  }
-                                });
-                              },
-                              initialCenter: Centering,
-                              initialZoom: 13.0,
-                            ),
-                            children: [
-                              TileLayer(
-                                urlTemplate:
+                                NewMarkerAdded = true;
+                              }
+                            });
+                          },
+                          initialCenter: Centering,
+                          initialZoom: 13.0,
+                        ),
+                        children: [
+                          //Load in OSM tile
+                          TileLayer(
+                            urlTemplate:
                                 "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                                subdomains: ['a', 'b', 'c'],
-                              ),
-                              CurrentLocationLayer(),
-                              PopupMarkerLayer(
-                                  options: PopupMarkerLayerOptions(
-                                    markers: MarkerList,
-                                    popupController: popupController,
-                                    popupDisplayOptions: PopupDisplayOptions(
-                                        builder: (BuildContext context,
-                                            Marker marker) {
-                                          //Set current Garden - need to have this persistent between pages:
-                                          //need to get garden name via api here
-                                          //final Garden selectedGarden = Garden(name:"dog" );
-                                          //Provider.of<gardenProvider>(context,listen: false).setUser(selectedGarden);
+                            subdomains: ['a', 'b', 'c'],
+                          ),
+                          CurrentLocationLayer(),
+                          PopupMarkerLayer(
+                              options: PopupMarkerLayerOptions(
+                            markers: MarkerList,
+                            popupController: popupController,
+                            popupDisplayOptions: PopupDisplayOptions(
+                                builder: (BuildContext context, Marker marker) {
+                              //Checks whether the pin chosen is a new pin or a pre existing garden.
+                              if (marker.point.latitude.toDouble() == NewLat &&
+                                  marker.point.longitude.toDouble() ==
+                                      NewLong) {
+                                //If pin is new, save the variables into the provider and link to creation page.
 
-                                          if (marker.point.latitude
-                                              .toDouble() == NewLat &&
-                                              marker.point.longitude
-                                                  .toDouble() == NewLong) {
-                                            Garden? newGarden = Garden(
-                                                Lat: marker.point.latitude
-                                                    .toDouble(),
-                                                Long: marker.point.longitude
-                                                    .toDouble(),
-                                                name: "NEWGARDEN",
-                                                bio: "default",
-                                                ownerID: 999);
-                                            Provider.of<gardenProvider>(
-                                                context, listen: false)
-                                                .setGarden(newGarden);
+                                Garden? newGarden = Garden(
+                                    Lat: marker.point.latitude.toDouble(),
+                                    Long: marker.point.longitude.toDouble(),
+                                    name: "NEWGARDEN",
+                                    bio: "default",
+                                    ownerID: 999);
+                                Provider.of<gardenProvider>(context,
+                                        listen: false)
+                                    .setGarden(newGarden);
 
-                                            return buildElevatedButtonLink(
+                                return buildElevatedButtonLink(
+                                    context,
+                                    CreateGardenScreen(),
+                                    "Create a garden here!");
+                              } else {
+                                //return name of garden if preexisting
+                                return FutureBuilder(
+                                    future: fetchGardenInfoByLatLng(
+                                        marker.point.latitude,
+                                        marker.point.longitude),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return Center(
+                                            child: CircularProgressIndicator());
+                                      } else if (snapshot.hasError) {
+                                        return Center(
+                                            child: Text('Garden Fetch Error'));
+                                      } else {
+                                        //Positive response
+                                        String gardenName = snapshot.data?[0];
+                                        String bio = snapshot.data?[1];
+                                        int ownerID = snapshot.data?[2];
+                                        return Card(
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              //Set provider with garden info to pull into profile page
+                                              setState(() {
+                                                Provider.of<gardenProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .setGarden(Garden(
+                                                        name: gardenName,
+                                                        Long: marker
+                                                            .point.longitude,
+                                                        Lat: marker
+                                                            .point.latitude,
+                                                        bio: bio,
+                                                        ownerID: ownerID));
+                                              });
+                                              //Redirect to Profile Page on click
+
+                                              Navigator.push(
                                                 context,
-                                                CreateGardenScreen(),
-                                                "Create a garden here!");
-                                          } else {
-                                            print(marker.point.latitude);
-                                            print(marker.point.longitude);
-
-
-                                            return FutureBuilder(
-                                                future: fetchGardenInfoByLatLng(
-                                                    marker.point.latitude,
-                                                    marker.point.longitude),
-                                                builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-    return Center(child: CircularProgressIndicator());
-    } else if (snapshot.hasError) {
-    return Center(child: Text('Garden Fetch Error'));
-    } else {
-
-
-                                                  print(marker.point.latitude);
-                                                  print(snapshot);
-                                                  print(snapshot.data?[0]);
-                                                  print(snapshot.data?[1]);
-                                                  print(snapshot.data?[2]);
-                                                  String gardenName = snapshot
-                                                      .data?[0];
-                                                  String bio = snapshot
-                                                      .data?[1];
-                                                  int ownerID = snapshot
-                                                      .data?[2];
-
-                                                      return Card(
-                                                      child: GestureDetector(
-                                                      onTap: ()
-                                                  {
-                                                    setState(() {
-                                                      Provider.of<
-                                                          gardenProvider>(
-                                                          context,
-                                                          listen: false)
-                                                          .setGarden(Garden(
-                                                          name: gardenName,
-                                                          Long: marker.point
-                                                              .longitude,
-                                                          Lat: marker.point
-                                                              .latitude,
-                                                          bio: bio,
-                                                          ownerID: ownerID));
-//.getGarden();
-                                                    }
-                                                    );
-
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              GardenProfile()),
-                                                    );
-                                                  },
-                                                  child: Padding(
-                                                  padding: const EdgeInsets.all(8.0),
-                                                  child: Text(
-                                                  'Garden, $gardenName at'
-                                                  ': \nLat: ${marker.point.latitude}, \nLon: ${marker.point.longitude}\n Description: $bio',
-                                                  textAlign: TextAlign.center,
-                                                  ),
-                                                  ),
-                                                  ),
-                                                  );
-                                                }});
-                                          }
-                                        }),
-                                  ))
-                            ],
-                          )),
-
-                SizedBox(height: 10,),
-              Positioned(
-              bottom: 20,
-              right : 20,
-              child:
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Consumer<gardenProvider>(
-                        builder: (context, gardenProvider, child) {
-                          Garden? clickedGarden = gardenProvider.getGarden();
-                          String? clickedGardenName = clickedGarden?.getName();
-                          if (clickedGarden == null ||
-                              clickedGardenName == "NEWGARDEN") {
-                            return
-
-                              Container(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        GardenProfile()),
+                                              );
+                                            },
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Garden, $gardenName at'
+                                                ': \nLat: ${marker.point.latitude}, \nLon: ${marker.point.longitude}\n Description: $bio',
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    });
+                              }
+                            }),
+                          ))
+                        ],
+                      )),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Positioned(
+                      bottom: 20,
+                      right: 20,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Consumer<gardenProvider>(
+                              builder: (context, gardenProvider, child) {
+                            Garden? clickedGarden = gardenProvider.getGarden();
+                            String? clickedGardenName =
+                                clickedGarden?.getName();
+                            if (clickedGarden == null ||
+                                clickedGardenName == "NEWGARDEN") {
+                              return Container(
                                   padding: EdgeInsets.all(10),
                                   decoration: BoxDecoration(
                                     color: Colors.green[300],
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Center(child: Text(
-                                      'Select a garden.', style: TextStyle(
-                                      color: Colors.white, fontSize: 30))));
-                          } else {
-                            return (Text(
-                                'Garden: $clickedGardenName',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 30)
-                            ));
-                          }
-                        }),
-                    SizedBox(width: 10,),
-
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.green[300],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: FutureBuilder<String>(
-                          future: getTemp(wf, cityName),
-                          builder: (context, snapshot) {
-                            return Text(snapshot.data ?? "",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 30));
+                                  child: Center(
+                                      child: Text('Select a garden.',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 30))));
+                            } else {
+                              return (Text('Garden: $clickedGardenName',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 30)));
+                            }
                           }),
-                    ),
-                  ],
-                ))
-              ]))]);
-
+                          SizedBox(
+                            width: 10,
+                          ),
+                          //Weather widget
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.green[300],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: FutureBuilder<String>(
+                                future: getTemp(wf, cityName),
+                                builder: (context, snapshot) {
+                                  return Text(snapshot.data ?? "",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 30));
+                                }),
+                          ),
+                        ],
+                      ))
+                ]))
+              ]);
             }));
   }
 }

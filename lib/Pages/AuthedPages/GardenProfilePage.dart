@@ -4,9 +4,7 @@ import 'package:provider/provider.dart';
 import 'dart:convert';
 import '../../library/Utility.dart';
 import '../../services/apiService.dart';
-import 'package:hello_world/main.dart';
 import 'package:hello_world/Widgets/All_Widgets.dart';
-
 import 'gardenList.dart';
 
 class GardenProfile extends StatefulWidget {
@@ -15,33 +13,36 @@ class GardenProfile extends StatefulWidget {
 }
 
 class _GardenProfileState extends State<GardenProfile> {
+  //Define contollers and an empty message list
   final TextEditingController nameController = TextEditingController();
   final TextEditingController messageController = TextEditingController();
   List<Map<String, String>> messageList = [];
 
+  //Define API URL and service
   final String baseUrl = 'http://127.0.0.1:8000/api/garden/';
   ApiService apiService = ApiService();
 
+  //Function to join a garden as a follower
   Future<void> followGarden(String gardenName) async {
     String apiUrl = 'http://127.0.0.1:8000/api/garden/join/$gardenName/';
     try {
-      final currentUser = Provider.of<UserProvider>(context,listen: false).getUser();
+      final currentUser =
+          Provider.of<UserProvider>(context, listen: false).getUser();
       int? currentID = currentUser?.getuserID();
-
+      //Assemble JSON request
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
         },
-        body: json.encode({
-          'userID': currentID
-        }),
+        body: json.encode({'userID': currentID}),
       );
-
+      //Good Response
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Garden Followed successfully!')),
         );
+        //Redirect to Garden Lists
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => GardenListScreen()));
       } else {
@@ -50,20 +51,19 @@ class _GardenProfileState extends State<GardenProfile> {
               content: Text('Failed to follow garden: ${response.statusCode}')),
         );
       }
-    }
-    catch (e) {
-      print(e);
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
     }
   }
 
+  //As before but unfollowing gardens
   Future<void> unfollowGarden(String gardenName) async {
     String apiUrl = 'http://127.0.0.1:8000/api/garden/leave/$gardenName/';
-    print(apiUrl);
     try {
-      final currentUser = Provider.of<UserProvider>(context,listen: false).getUser();
+      final currentUser =
+          Provider.of<UserProvider>(context, listen: false).getUser();
       int? currentID = currentUser?.getuserID();
 
       final response = await http.post(
@@ -71,11 +71,9 @@ class _GardenProfileState extends State<GardenProfile> {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: json.encode({
-          'userID': currentID
-        }),
+        body: json.encode({'userID': currentID}),
       );
-
+      //Positive response
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Garden unfollowed successfully!')),
@@ -85,51 +83,31 @@ class _GardenProfileState extends State<GardenProfile> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Failed to unfollow garden: ${response.statusCode}')),
+              content:
+                  Text('Failed to unfollow garden: ${response.statusCode}')),
         );
       }
-    }
-    catch (e) {
-      print(e);
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
     }
   }
 
-
-
-
-
-
-
-
-
+  //Inserts new user message into message list.  Set state forces a rebuild to live update.
   void send_chat_message(username) {
     setState(() {
       messageList.insert(messageList.length,
           {'body': messageController.text, 'senderUsername': username});
     });
   }
-
+//Clear controller once sent.
   void clearChatbox() {
     setState(() {
       messageController.clear();
     });
   }
-
-  void send_chat_message_auto(String message) {
-    setState(() {
-      messageList.insert(0, {'body': message, 'sender': 'user'});
-    });
-  }
-
-  void chat_reply(String response) {
-    setState(() {
-      messageList.insert(0, {'body': response, 'sender': 'LLM'});
-    });
-  }
-
+  //Function to record user messages on messageboard
   Future<void> createMessage(userID, gardenID) async {
     String apiUrl = 'http://127.0.0.1:8000/api/msg/';
     try {
@@ -144,7 +122,7 @@ class _GardenProfileState extends State<GardenProfile> {
           'body': messageController.text
         }),
       );
-
+      //Positive response
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Message sent successfully!')),
@@ -162,7 +140,7 @@ class _GardenProfileState extends State<GardenProfile> {
       );
     }
   }
-
+//Function which fetches all relevant info for profile page
   Future<void> fetchData() async {
     final Garden? currentGarden =
         Provider.of<gardenProvider>(context, listen: false).getGarden();
@@ -179,8 +157,6 @@ class _GardenProfileState extends State<GardenProfile> {
               })
           .toList();
     });
-
-    print("Messages loaded: $messageList"); // Debugging output
   }
 
   @override
@@ -189,6 +165,7 @@ class _GardenProfileState extends State<GardenProfile> {
     super.dispose();
   }
 
+  //Get username of owner to display
   Future<String> getOwnerUsername(int ownerID) async {
     return await apiService.fetchUserName(ownerID);
   }
@@ -201,23 +178,19 @@ class _GardenProfileState extends State<GardenProfile> {
 
   @override
   Widget build(BuildContext context) {
+    //Access user and garden info
     final Garden? currentGarden =
         Provider.of<gardenProvider>(context).getGarden();
     final currentUser = Provider.of<UserProvider>(context).getUser();
     final currentName = currentUser?.getName();
-
-    String ownText = "";
+    //Defines a Map for easy access to numerous datapoints
     Map<String, dynamic> profile = {
       "name": currentGarden?.getName(),
       "bio": currentGarden?.getBio(),
       "lat": currentGarden?.getLat().toString(),
       "long": currentGarden?.getLong().toString()
     };
-    if (currentName == profile['ownerUsername']) {
-      ownText = "This is your garden";
-    } else {
-      ownText = "This garden belongs to ${profile['ownerUsername']}";
-    }
+
 
     return Scaffold(
       appBar: buildAuthedAppBar(context),
@@ -297,10 +270,12 @@ class _GardenProfileState extends State<GardenProfile> {
                     Column(children: [
                       ElevatedButton(
                         onPressed: () async {
-                          print("name sending is $currentName");
+                          //Record chat message
                           send_chat_message(currentName);
+                          //Send message to dataabase
                           createMessage(currentUser?.getuserID(),
                               currentGarden.getName());
+                          //Clear box
                           clearChatbox();
                         },
                         child: Text('Send'),

@@ -3,10 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:hello_world/Widgets/All_Widgets.dart';
 import 'package:provider/provider.dart';
-import '../../services/apiService.dart';
 import 'package:hello_world/Pages/AllPages.dart';
 import 'package:hello_world/library/Utility.dart';
-
 
 class loginPage extends StatefulWidget {
   @override
@@ -14,7 +12,7 @@ class loginPage extends StatefulWidget {
 }
 
 class _loginPageState extends State<loginPage> {
-
+  //Attempts user login
   Future<List<dynamic>> fetchLogin() async {
     String baseUrl = ("http://127.0.0.1:8000/api/login/");
     List responseList = [];
@@ -29,26 +27,24 @@ class _loginPageState extends State<loginPage> {
           'password': passwordController.text
         }),
       );
+      //Early attempt at decoding JSON responses could be refactored
       final data = jsonDecode(response.body);
       String message = data['message'];
       String user = data['user'];
       int userID = data['userID'];
       responseList.add('message');
-      responseList.add(user) ;
-      responseList.add(userID) ;
-      return(responseList);
-    }
-    catch (e) {
+      responseList.add(user);
+      responseList.add(userID);
+      return (responseList);
+    } catch (e) {
       responseList.add('Error');
       responseList.add(' : Failed to Authenticate!');
-      return(responseList);
+      return (responseList);
     }
   }
 
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-
-
 
   @override
   void dispose() {
@@ -83,7 +79,6 @@ class _loginPageState extends State<loginPage> {
                 ),
               ),
               const SizedBox(height: 20),
-
               TextField(
                 controller: passwordController,
                 obscureText: true,
@@ -96,41 +91,43 @@ class _loginPageState extends State<loginPage> {
               ),
               SizedBox(height: 30),
               ElevatedButton(
-
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  fixedSize: Size(350,50),
-                  side: BorderSide(
-                    color: Colors.black, // Border color
-                    width: 1.0,         // Border width
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    fixedSize: Size(350, 50),
+                    side: BorderSide(
+                      color: Colors.black, // Border color
+                      width: 1.0, // Border width
+                    ),
                   ),
-                ),
-                child: Text('Login', style: TextStyle(color: Colors.white, fontSize: 30)),
-                onPressed: () async {
-                  print(passwordController.text);
-                  final result  = await fetchLogin();
-                  final User currentUser = User(username: result[1], userID: result[2]);//, userID: result[2]);
-                  Provider.of<UserProvider>(context,listen: false).setUser(currentUser);
+                  child: Text('Login',
+                      style: TextStyle(color: Colors.white, fontSize: 30)),
+                  onPressed: () async {
+                    final result = await fetchLogin();
+                    final User currentUser = User(
+                        username: result[1],
+                        userID: result[2]); //, userID: result[2]);
+                    Provider.of<UserProvider>(context, listen: false)
+                        .setUser(currentUser);
 
-                  if (result[0] == 'Error') {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text((result[0] + result[1]) ),
-                        duration: Duration(seconds: 2), // Adjust the duration as needed
-                      ),
-                    );
-                  };
-                  if (result[0] != 'Error') {
-                    Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => LoggedInHomePage()));
-    }
-                  }
-
-              ),
+                    if (result[0] == 'Error') {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text((result[0] + result[1])),
+                          duration: Duration(
+                              seconds: 2), // Adjust the duration as needed
+                        ),
+                      );
+                    }
+                    ;
+                    if (result[0] != 'Error') {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => LoggedInHomePage()));
+                    }
+                  }),
               const SizedBox(height: 10),
-              buildElevatedButtonLink(context,passReset(), 'Forgotten Password?'),
+              buildElevatedButtonLink(
+                  context, passReset(), 'Forgotten Password?'),
               const SizedBox(height: 10),
-
             ],
           ),
         ),

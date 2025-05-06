@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hello_world/Pages/AllPages.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:hello_world/Widgets/All_Widgets.dart';
-import 'package:http/http.dart';
 
 class AboutPage extends StatefulWidget {
   @override
@@ -16,13 +12,13 @@ class _AboutPageState extends State<AboutPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildStandardAppBar(context),
-      body: Center(
+      body: const Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 'About GardenGram',
                 style: TextStyle(
                   color: Colors.green,
@@ -30,8 +26,8 @@ class _AboutPageState extends State<AboutPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 20),
-              const Text(
+              SizedBox(height: 20),
+              Text(
                 'GardenGram is a community focused project which aims to empower gardeners to come together and drive real ecological improvements in their local area.',
                 style: TextStyle(
                   //color: Colors.black,
@@ -39,7 +35,6 @@ class _AboutPageState extends State<AboutPage> {
                   //fontWeight: FontWeight.bold,
                 ),
               ),
-
 
             ],
           ),

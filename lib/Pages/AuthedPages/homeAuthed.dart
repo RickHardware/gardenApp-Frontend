@@ -25,7 +25,6 @@ class LoggedInHomePage extends StatefulWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             BuildStandardLogo(context),
-            //Image.asset("..../assets/logo.png", height: 0.5),
             const SizedBox(height: 4),
             buildStandardTitleText('Welcome Gardener'),
             const SizedBox(height: 10),

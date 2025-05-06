@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
-import 'package:flutter_map_marker_popup/extension_api.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:hello_world/Pages/AllPages.dart';
 import 'package:hello_world/library/Utility.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:hello_world/main.dart';
-import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:hello_world/Widgets/All_Widgets.dart';
 import 'dart:convert';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
-import 'package:hello_world/library/Utility.dart';
 import 'package:weather/weather.dart';
 import '../../services/apiService.dart';
 
@@ -28,6 +21,8 @@ class GuestGeoPageState extends State<GuestGeoPage> {
   ApiService apiService = ApiService();
 
   late Future<List<Garden>> ExistingGardens;
+
+  //Centre on belfast
   LatLng Centering = LatLng(54.607868, -5.926437);
 
   //LatLong variable for clicked point
@@ -71,8 +66,6 @@ class GuestGeoPageState extends State<GuestGeoPage> {
     }
   }
 
-  // late Future<Garden>? clickedGarden;
-
   @override
   void initState() {
     super.initState();
@@ -84,19 +77,14 @@ class GuestGeoPageState extends State<GuestGeoPage> {
         Provider.of<UserProvider>(context, listen: false).getUser()?.getName();
     return Scaffold(
         appBar: buildStandardAppBar(context),
-        //bottomNavigationBar: buildStandardBottomAppBar(context),
         body: FutureBuilder<List<Marker>>(
             future: apiService.fetchGardenMarkers(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                print("loading");
                 return Center(child: CircularProgressIndicator());
               } else if (!snapshot.hasData ||
                   snapshot.data == null ||
-                  snapshot.data!.isEmpty) {
-                print("fail");
-                //return Center(child: Text("No gardens available"));
-              }
+                  snapshot.data!.isEmpty) {}
               MarkerList.addAll(snapshot.data!);
 
               // }
@@ -117,6 +105,7 @@ class GuestGeoPageState extends State<GuestGeoPage> {
                             initialZoom: 13.0,
                           ),
                           children: [
+                            //Build Map
                             TileLayer(
                               urlTemplate:
                                   "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -129,11 +118,7 @@ class GuestGeoPageState extends State<GuestGeoPage> {
                               popupController: popupController,
                               popupDisplayOptions: PopupDisplayOptions(builder:
                                   (BuildContext context, Marker marker) {
-                                //Set current Garden - need to have this persistent between pages:
-                                //need to get garden name via api here
-                                //final Garden selectedGarden = Garden(name:"dog" );
-                                //Provider.of<gardenProvider>(context,listen: false).setUser(selectedGarden);
-
+                                //Checks if selected pin is a new garden or existing
                                 if (marker.point.latitude.toDouble() ==
                                         NewLat &&
                                     marker.point.longitude.toDouble() ==
@@ -147,15 +132,12 @@ class GuestGeoPageState extends State<GuestGeoPage> {
                                   Provider.of<gardenProvider>(context,
                                           listen: false)
                                       .setGarden(newGarden);
-
+                                  //Return link to create garden if new area selected
                                   return buildElevatedButtonLink(
                                       context,
                                       CreateGardenScreen(),
                                       "Create a garden here!");
                                 } else {
-                                  print(marker.point.latitude);
-                                  print(marker.point.longitude);
-
                                   return FutureBuilder(
                                       future: fetchGardenInfoByLatLng(
                                           marker.point.latitude,
@@ -163,59 +145,26 @@ class GuestGeoPageState extends State<GuestGeoPage> {
                                       builder: (context, snapshot) {
                                         if (snapshot.connectionState ==
                                             ConnectionState.waiting) {
-                                          return Center(
+                                          return const Center(
                                               child:
                                                   CircularProgressIndicator());
                                         } else if (snapshot.hasError) {
-                                          return Center(
+                                          return const Center(
                                               child:
                                                   Text('Garden Fetch Error'));
                                         } else {
-                                          print(marker.point.latitude);
-                                          print(snapshot);
-                                          print(snapshot.data?[0]);
-                                          print(snapshot.data?[1]);
-                                          print(snapshot.data?[2]);
                                           String gardenName = snapshot.data?[0];
                                           String bio = snapshot.data?[1];
                                           int ownerID = snapshot.data?[2];
 
                                           return Card(
-                                            child: GestureDetector(
-                                              //       onTap: ()
-                                              //   {
-                                              //     setState(() {
-                                              //       Provider.of<
-                                              //           gardenProvider>(
-                                              //           context,
-                                              //           listen: false)
-                                              //           .setGarden(Garden(
-                                              //           name: gardenName,
-                                              //           Long: marker.point
-                                              //               .longitude,
-                                              //           Lat: marker.point
-                                              //               .latitude,
-                                              //           bio: bio,
-                                              //           ownerID: ownerID));
-//.getGarden();//
-                                              //     }
-                                              //     );
-//
-                                              //     Navigator.push(
-                                              //       context,
-                                              //       MaterialPageRoute(
-                                              //           builder: (context) =>
-                                              //               GardenProfile()),
-                                              //     );
-                                              //   },
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Text(
-                                                  '$gardenName'
-                                                  ': Bio: $bio',
-                                                  textAlign: TextAlign.center,
-                                                ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                '$gardenName'
+                                                ': Bio: $bio',
+                                                textAlign: TextAlign.center,
                                               ),
                                             ),
                                           );
@@ -227,22 +176,22 @@ class GuestGeoPageState extends State<GuestGeoPage> {
                           ],
                         )),
                     Positioned(
-                      bottom: 20,
-                        right : 20,
+                        bottom: 20,
+                        right: 20,
                         child: Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.green[300],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: FutureBuilder<String>(
-                          future: getTemp(wf, cityName),
-                          builder: (context, snapshot) {
-                            return Text(snapshot.data ?? "",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 30));
-                          }),
-                    ))
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.green[300],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: FutureBuilder<String>(
+                              future: getTemp(wf, cityName),
+                              builder: (context, snapshot) {
+                                return Text(snapshot.data ?? "",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 30));
+                              }),
+                        ))
                   ],
                 )),
                 SizedBox(

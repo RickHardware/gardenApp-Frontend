@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hello_world/services/apiService.dart';
-import 'package:hello_world/main.dart';
 import 'package:hello_world/Widgets/All_Widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -27,7 +26,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       currentName = currentUser.getName();
       userID = currentUser.getuserID();
     } else {
-      print("CRITICAL ERROR");
       currentName = "";
       userID = 1000000000;
     }
@@ -53,7 +51,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             final name = user['username'] ?? 'No Name';
             final email = user['email'] ?? 'No Email';
             final datejoined = user['date_joined'] ?? 'No Email';
-
+//Simple user info tile
             return ListTile(
               title: Text("Username: $name"),
               subtitle: Text("Email : $email   \n Member since: $datejoined "

@@ -8,6 +8,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:hello_world/Pages/AuthedPages/allAuthedPages.dart';
 import 'package:flutter_map/flutter_map.dart';
 
+//Standard futurebuilder - takes some future object and feeds it to a child widget  If it fails then it outputs chosen fail text
 Widget buildStandardFutureBuilder(futureEntity, failText, childWidget) {
   return FutureBuilder<List<dynamic>>(
     future: futureEntity,
@@ -35,6 +36,7 @@ Widget buildStandardSubtitleText(String titleText) {
           color: Colors.green, fontSize: 30, fontWeight: FontWeight.bold));
 }
 
+//Garden are required at least twice in the application so worth method extracting it.
 Widget buildStandardGardenList(snapshot, userID) {
   return ListView.builder(
     itemCount: snapshot.data!.length,
@@ -46,6 +48,7 @@ Widget buildStandardGardenList(snapshot, userID) {
       final long = garden['longitude'] ?? 'No Bio.';
       return ListTile(
         onTap: () {
+          //Tap redirects to profile of the chosen garden
           Provider.of<gardenProvider>(context, listen: false).setGarden(Garden(
               name: name, Long: long, Lat: lat, bio: bio, ownerID: userID));
           Navigator.push(
@@ -74,6 +77,7 @@ Widget buildStandardContainer(
       child: Internal);
 }
 
+//Builds a standard navigation button.  Flexible in terms of label and destination
 Flexible buildElevatedButtonLink(
     BuildContext context, Widget DestinationPage, String ButtonLabel) {
   Size screenSize = MediaQuery.of(context).size;
@@ -100,6 +104,7 @@ Flexible buildElevatedButtonLink(
   ));
 }
 
+//Button as above but for app bars
 Flexible buildIconButtonLink(BuildContext context, Widget DestinationPage,
     String ButtonLabel, IconData icon, String TooltipMessage) {
   Size screenSize = MediaQuery.of(context).size;
@@ -132,6 +137,7 @@ Flexible buildIconButtonLink(BuildContext context, Widget DestinationPage,
           ])));
 }
 
+//Builds a standard garden marker
 Marker buildGardenMarker(double Latitude, double Longitude) {
   return Marker(
     point: LatLng(Latitude, Longitude),
@@ -142,6 +148,7 @@ Marker buildGardenMarker(double Latitude, double Longitude) {
   );
 }
 
+//Builds a temporary garden marker with the temp flag
 Marker buildTempGardenMarker(double Latitude, double Longitude) {
   return Marker(
     key: const ValueKey("TempFlag"),
@@ -153,6 +160,7 @@ Marker buildTempGardenMarker(double Latitude, double Longitude) {
   );
 }
 
+//Defunct object
 gardenMarkerHolder buildGardenMarkerHolder(
     double Latitude, double Longitude, String name, String bio, int ownerID) {
   Garden garden = Garden(
@@ -169,6 +177,7 @@ gardenMarkerHolder buildGardenMarkerHolder(
   return (gardenMarkerHolder(garden: garden, marker: marker));
 }
 
+//This is the moveable marker
 Marker buildDynamicGardenMarker(double Latitude, double Longitude) {
   return Marker(
     point: LatLng(Latitude, Longitude),
@@ -179,10 +188,12 @@ Marker buildDynamicGardenMarker(double Latitude, double Longitude) {
   );
 }
 
+//Standard logo asset reference
 Image BuildStandardLogo(BuildContext context) {
   return Image.asset("../assets/logo.png", height: 200);
 }
 
+//Standard app bar for guest users
 AppBar buildStandardAppBar(BuildContext context) {
   return AppBar(
     title: Row(children: [
@@ -197,7 +208,6 @@ AppBar buildStandardAppBar(BuildContext context) {
             colorFilter: ColorFilter.mode(Colors.green, BlendMode.multiply),
             child: Image.asset("../assets/logo.jpg", height: 60),
           )),
-      //Image.asset("../assets/logo.png", height: 40),
       GestureDetector(
           onTap: () {
             Navigator.push(
@@ -219,6 +229,7 @@ AppBar buildStandardAppBar(BuildContext context) {
   );
 }
 
+//Defunct - useful for mobile development but looks poor in web interface.
 BottomAppBar buildStandardBottomAppBar(BuildContext context) {
   return BottomAppBar(
     color: Colors.green,
@@ -229,18 +240,18 @@ BottomAppBar buildStandardBottomAppBar(BuildContext context) {
             context, LoggedInHomePage(), "Home", Icons.home, "Homepage"),
         buildIconButtonLink(context, GeoPage(), "Map", Icons.map_outlined,
             "Map of all Gardens"),
-        buildIconButtonLink(context, weatherPage(), "Weather",
-            Icons.thunderstorm, "View current weather"),
+        //buildIconButtonLink(context, weatherPage(), "Weather",
+        //    Icons.thunderstorm, "View current weather"),
         buildIconButtonLink(context, GardenListScreen(), 'My Gardens',
             Icons.energy_savings_leaf, "See my gardens"),
         buildIconButtonLink(context, plantInfoScreen(), "Almanac", Icons.book,
             "View the almanac."),
-        //buildElevatedButtonLink(context, CreateGardenScreen(), "Gardens"),
       ],
     ),
   );
 }
 
+//Authed app bar includes navigation pane
 buildAuthedAppBar(BuildContext context) {
   ApiService apiService = ApiService();
   final currentUser = Provider.of<UserProvider>(context).getUser();
@@ -291,13 +302,13 @@ buildAuthedAppBar(BuildContext context) {
           Icons.energy_savings_leaf, "See my gardens"),
       buildIconButtonLink(context, plantInfoScreen(), "Almanac", Icons.book,
           "View the almanac."),
-      buildIconButtonLink(context, UserProfileScreen(), "My Profile", Icons.face,
-          "View and edit your profile.")
+      buildIconButtonLink(context, UserProfileScreen(), "My Profile",
+          Icons.face, "View and edit your profile.")
     ])),
     backgroundColor: Colors.green,
     shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-      bottom: Radius.circular(15), // Rounded bottom
+      bottom: Radius.circular(15),
     )),
     automaticallyImplyLeading: false,
     actions: <Widget>[
@@ -307,6 +318,7 @@ buildAuthedAppBar(BuildContext context) {
               final response = await apiService.fetchLogOut();
               Provider.of<UserProvider>(context, listen: false)
                   .clearUserStatus();
+              //Redirect to home page on successful log out
               Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => HomePage()));
             } catch (e) {
@@ -315,7 +327,7 @@ buildAuthedAppBar(BuildContext context) {
                   content: Text(
                       'Failed to Log Out, Please wait a few seconds and retry : $e'),
                   duration:
-                      Duration(seconds: 2), // Adjust the duration as needed
+                      Duration(seconds: 2),
                 ),
               );
             }

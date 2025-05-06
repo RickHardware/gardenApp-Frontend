@@ -2,11 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:hello_world/Widgets/All_Widgets.dart';
-import 'package:provider/provider.dart';
-import '../../services/apiService.dart';
-import 'package:hello_world/Pages/AllPages.dart';
-import 'package:hello_world/library/Utility.dart';
-
 
 class passReset extends StatefulWidget {
   @override
@@ -14,7 +9,7 @@ class passReset extends StatefulWidget {
 }
 
 class _passResetState extends State<passReset> {
-
+//Django password reset only requires email
   Future<void> passwordReset() async {
     String baseUrl = ("http://127.0.0.1:8000/api/password-reset/");
     try {
@@ -23,22 +18,19 @@ class _passResetState extends State<passReset> {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: json.encode({
-          'email': emailController.text
-        }),
+        body: json.encode({'email': emailController.text}),
       );
-    }
-    catch (e) {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: $e'),
-          duration: Duration(seconds: 2), // Adjust the duration as needed
+          duration: Duration(seconds: 2),
         ),
       );
     }
   }
-  final TextEditingController emailController = TextEditingController();
 
+  final TextEditingController emailController = TextEditingController();
 
   @override
   void dispose() {
@@ -71,25 +63,24 @@ class _passResetState extends State<passReset> {
                   labelText: 'Email',
                 ),
               ),
-
               SizedBox(height: 30),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green,),
-                child: Text('Send Reset Link'),
-                onPressed: () async {
-                  final result  = await passwordReset();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Email link sent to reset password if correct email was supplied.'),
-                      duration: Duration(seconds: 2), // Adjust the duration as needed
-                    ),
-                  );
-
-
-                  }
-
-              )
-
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                  ),
+                  child: Text('Send Reset Link'),
+                  onPressed: () async {
+                    final result = await passwordReset();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      //Same response no matter whether or not email is valid
+                      SnackBar(
+                        content: Text(
+                            'Email link sent to reset password if correct email was supplied.'),
+                        duration: Duration(
+                            seconds: 2),
+                      ),
+                    );
+                  })
             ],
           ),
         ),
